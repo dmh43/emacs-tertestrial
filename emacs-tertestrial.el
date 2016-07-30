@@ -27,38 +27,39 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun tertestrial-tmp-path (&optional dir-path)
   "Path to .tertestrial.tmp."
-  (let ((path (if (boundp dir-path) dir-path tertestrial-root-dir)))
+  (let ((path (if dir-path dir-path tertestrial-root-dir)))
     (concat path ".tertestrial.tmp")))
 
 (defun tertestrial-start ()
   "Start the tertestrial server in a comint buffer."
   (interactive)
   (kill-old-buffer tertestrial-buffer-name)
-  (with-current-buffer (get-buffer-create tertestrial-buffer-name)
-    (setq tertestrial-root-dir (read-directory-name "Select project root directory"))
-    (setq default-directory tertestrial-root-dir)
-    (ansi-color-for-comint-mode-on)
-    (make-comint-in-buffer "tertestrial" tertestrial-buffer-name tertestrial-command)
-    (compilation-minor-mode 1)
-    (dir-locals-read-from-dir tertestrial-root-dir)
-    (when tertestrial-project-lang
+  (let ((lang tertestrial-project-lang))
+    (with-current-buffer (get-buffer-create tertestrial-buffer-name)
+      (setq tertestrial-root-dir (read-directory-name "Select project root directory"))
+      (setq default-directory tertestrial-root-dir)
+      (ansi-color-for-comint-mode-on)
+      (make-comint-in-buffer "tertestrial" tertestrial-buffer-name tertestrial-command)
+      (compilation-minor-mode 1)
+      (dir-locals-read-from-dir tertestrial-root-dir)
+      (when lang
         (progn
           (setq tertestrial-project-err-regexp-alist
                 (cdr (assoc "node" tertestrial-lang-err-regexp-alist)))
           (set (make-local-variable 'compilation-error-regexp-alist)
                tertestrial-project-err-regexp-alist)))
-    (pop-to-buffer tertestrial-buffer-name)))
+      (pop-to-buffer tertestrial-buffer-name))))
 
 (defun tertestrial-get-test-file-operation (&optional filename)
   (interactive)
-  (let ((buffer-name (if (boundp 'filename) filename (buffer-file-name))))
-    (json-encode `(:operation "testFile" :fileName ,buffer-name))))
+  (let ((buffer-name (if filename filename (buffer-file-name))))
+    (json-encode `(:operation "testFile" :filename ,buffer-name))))
 
 (defun tertestrial-get-test-line-operation (&optional filename line)
   (interactive)
-  (let ((buffer-name (if (boundp 'filename) filename (buffer-file-name)))
-        (line-num (if (boundp 'line) line (line-number-at-pos))))
-    (json-encode `(:operation "testFile" :fileName ,buffer-name :line ,line))))
+  (let ((buffer-name (if filename filename (buffer-file-name)))
+        (line-num (if line line (line-number-at-pos))))
+    (json-encode `(:operation "testFile" :filename ,buffer-name :line ,line))))
 
 (defun tertestrial-get-last-test-operation ()
   (interactive)
@@ -66,7 +67,7 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun tertestrial-get-set-mapping-operation (&optional mapping)
   (interactive)
-  (let ((mapping-num (if (boundp 'mapping) mapping (read-number "Please enter the number associated with the mapping to activate: "))))
+  (let ((mapping-num (if mapping mapping (read-number "Please enter the number associated with the mapping to activate: "))))
     (json-encode `(:operation "setMapping" :mapping ,mapping-num))))
 
 (defun tertestrial-write-command (tert-command-str)
