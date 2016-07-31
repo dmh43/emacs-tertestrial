@@ -52,27 +52,22 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
       (pop-to-buffer tertestrial-buffer-name))))
 
 (defun tertestrial-get-test-file-operation (&optional filename)
-  (interactive)
   (let ((buffer-name (if filename filename (buffer-file-name))))
     (json-encode `(:operation "testFile" :filename ,buffer-name))))
 
 (defun tertestrial-get-test-line-operation (&optional filename line)
-  (interactive)
   (let ((buffer-name (if filename filename (buffer-file-name)))
         (line-num (if line line (line-number-at-pos))))
     (json-encode `(:operation "testFile" :filename ,buffer-name :line ,line))))
 
 (defun tertestrial-get-last-test-operation ()
-  (interactive)
   (json-encode '(:operation "repeatLastTest")))
 
 (defun tertestrial-get-set-mapping-operation (&optional mapping)
-  (interactive)
   (let ((mapping-num (if mapping mapping (read-number "Please enter the number associated with the mapping to activate: "))))
     (json-encode `(:operation "setMapping" :mapping ,mapping-num))))
 
 (defun tertestrial-write-command (tert-command-str)
-  (interactive)
   (with-temp-buffer
     (insert tert-command-str)
     (write-file (tertestrial-tmp-path))))
