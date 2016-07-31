@@ -14,7 +14,6 @@
       (substring thing 1 -1))))
 
 (defun tertestrial-buttercup-get-test-suite-operation (&optional suite)
-  (interactive)
   (let ((suite-name (if suite suite (tertestrial-buttercup-get-test-name))))
     (json-encode `(:operation "testSuite" :pattern ,suite-name))))
 

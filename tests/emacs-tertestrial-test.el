@@ -13,7 +13,7 @@
   (it "returns the string for the test line operation"
     (expect (tertestrial-get-test-line-operation "file.txt" 10)
             :to-equal
-            "{\"operation\":\"testFile\",\"filename\":\"file.txt\",\"line\":10}")))
+            "{\"operation\":\"testLine\",\"filename\":\"file.txt\",\"line\":10}")))
 
 (describe "tertestrial-get-last-test-operation"
   (it "returns the string for the run last test operation"
