@@ -10,12 +10,14 @@
   "Emacs interface to Tertestrial"
   :group 'tools)
 
-(defvar tertestrial-root-dir)
-(defvar tertestrial-project-lang)
 (defvar tertestrial-project-err-regexp-alist)
-(defvar tertestrial-buffer-name "*tertestrial*")
 (defvar tertestrial-command "tertestrial")
 
+
+(defun tertestrial-get-buffer-name (&optional project-name)
+  (if project-name
+      (concat "*tertestrial-" project-name "*")
+    (concat "*tertestrial*")))
 
 (defun kill-old-buffer (buffer-name)
   "If buffer exists, kill it."
@@ -27,24 +29,32 @@
   (let ((path (if dir-path dir-path tertestrial-root-dir)))
     (concat path ".tertestrial.tmp")))
 
+(defun tertestrial-get-root-dir ()
+  (if tertestrial-root-dir
+      tertestrial-root-dir
+    (read-directory-name "Select project root directory")))
+
 (defun tertestrial-start ()
   "Start the tertestrial server in a comint buffer."
   (interactive)
-  (kill-old-buffer tertestrial-buffer-name)
-  (let ((lang (when (boundp 'tertestrial-project-lang) tertestrial-project-lang)))
-    (with-current-buffer (get-buffer-create tertestrial-buffer-name)
-      (setq tertestrial-root-dir (read-directory-name "Select project root directory"))
-      (setq default-directory tertestrial-root-dir)
+  (let* ((lang (when (boundp 'tertestrial-project-lang) tertestrial-project-lang))
+         (project-path (tertestrial-get-root-dir))
+         (project-name (file-name-base (directory-file-name project-path)))
+         (tertestrial-buff-name (tertestrial-get-buffer-name project-name)))
+    (kill-old-buffer tertestrial-buff-name)
+    (with-current-buffer (get-buffer-create tertestrial-buff-name)
+      (setq default-directory project-path)
+      (message default-directory)
       (ansi-color-for-comint-mode-on)
-      (make-comint-in-buffer "tertestrial" tertestrial-buffer-name tertestrial-command)
+      (make-comint-in-buffer "tertestrial" tertestrial-buff-name tertestrial-command)
       (when lang
         (compilation-minor-mode 1)
-        (dir-locals-read-from-dir tertestrial-root-dir)
+        (dir-locals-read-from-dir project-path)
         (setq tertestrial-project-err-regexp-alist
               (cdr (assoc "node" tertestrial-lang-err-regexp-alist)))
         (set (make-local-variable 'compilation-error-regexp-alist)
              tertestrial-project-err-regexp-alist))
-      (pop-to-buffer tertestrial-buffer-name))))
+      (pop-to-buffer tertestrial-buff-name))))
 
 (defun tertestrial-get-test-file-operation (&optional filename)
   (let ((buffer-name (if filename filename (buffer-file-name))))
@@ -63,9 +73,10 @@
     (json-encode `(:operation "setMapping" :mapping ,mapping-num))))
 
 (defun tertestrial-write-command (tert-command-str)
-  (with-temp-buffer
-    (insert tert-command-str)
-    (write-file (tertestrial-tmp-path))))
+  (let ((tmp-path (tertestrial-tmp-path)))
+    (with-temp-buffer
+      (insert tert-command-str)
+      (write-file tmp-path))))
 
 (defun tertestrial-test-file ()
   (interactive)
@@ -75,13 +86,14 @@
   (interactive)
   (tertestrial-write-command (tertestrial-get-test-line-operation)))
 
-(defun tertestrial-last-test-operation ()
+(defun tertestrial-last-test ()
   (interactive)
   (tertestrial-write-command (tertestrial-get-last-test-operation)))
 
 (defun tertestrial-set-mapping ()
   (interactive)
   (tertestrial-write-command (tertestrial-get-set-mapping-operation)))
+
 
 (provide 'emacs-tertestrial)
 

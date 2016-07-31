@@ -6,4 +6,5 @@
 (development
  (depends-on "buttercup")
  (depends-on "json")
- (depends-on "compile"))
+ (depends-on "compile")
+ (depends-on "thingatpt"))

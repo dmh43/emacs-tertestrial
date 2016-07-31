@@ -1,4 +1,5 @@
 (require 'json)
+(require 'thingatpt)
 (require 'emacs-tertestrial)
 
 (defun tertestrial-buttercup-get-test-name ()

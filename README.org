@@ -3,6 +3,7 @@
 ** Features
  - Jump to line number directly from Tertestrial output
  - Hotkeys for calling Tertestrial operations
+ - Support for multiple Tertestrial sessions
  - View the status of the test in the minibuffer [to be implemented]
  - Highlights failing tests in the source file [to be implemented]
  - Integration with Projectile [to be implemented]
