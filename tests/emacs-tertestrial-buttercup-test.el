@@ -4,8 +4,8 @@
 
 (require 'emacs-tertestrial-buttercup)
 
-(describe "tertestrial-buttercup-get-test-name"
-  (it "returns the name of the current"
-    (expect (tertestrial-get-test-file-operation "file.txt")
+(describe "tertestrial-buttercup-get-test-suite-operation"
+  (it "returns the command to run the test suite operation"
+    (expect (tertestrial-buttercup-get-test-suite-operation "a test suite name")
             :to-equal
-            "{\"operation\":\"testFile\",\"filename\":\"file.txt\"}")))
+            "{\"operation\":\"testSuite\",\"pattern\":\"a test suite name\"}")))

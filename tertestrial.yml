@@ -1,0 +1,3 @@
+mappings:
+  default:
+    testSuite: "cask exec buttercup -p {{pattern}}"

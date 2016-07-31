@@ -1,6 +1,6 @@
 ;;; emacs-tertestrial.el --- Interface to tertestrial
 ;; Author: dmh
-;; Version: 0.0.2
+;; Version: 0.2
 
 (require 'compile)
 (require 'json)
@@ -36,20 +36,19 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
   "Start the tertestrial server in a comint buffer."
   (interactive)
   (kill-old-buffer tertestrial-buffer-name)
-  (let ((lang tertestrial-project-lang))
+  (let ((lang (when (boundp 'tertestrial-project-lang) tertestrial-project-lang)))
     (with-current-buffer (get-buffer-create tertestrial-buffer-name)
       (setq tertestrial-root-dir (read-directory-name "Select project root directory"))
       (setq default-directory tertestrial-root-dir)
       (ansi-color-for-comint-mode-on)
       (make-comint-in-buffer "tertestrial" tertestrial-buffer-name tertestrial-command)
-      (compilation-minor-mode 1)
-      (dir-locals-read-from-dir tertestrial-root-dir)
       (when lang
-        (progn
-          (setq tertestrial-project-err-regexp-alist
-                (cdr (assoc "node" tertestrial-lang-err-regexp-alist)))
-          (set (make-local-variable 'compilation-error-regexp-alist)
-               tertestrial-project-err-regexp-alist)))
+        (compilation-minor-mode 1)
+        (dir-locals-read-from-dir tertestrial-root-dir)
+        (setq tertestrial-project-err-regexp-alist
+              (cdr (assoc "node" tertestrial-lang-err-regexp-alist)))
+        (set (make-local-variable 'compilation-error-regexp-alist)
+             tertestrial-project-err-regexp-alist))
       (pop-to-buffer tertestrial-buffer-name))))
 
 (defun tertestrial-get-test-file-operation (&optional filename)
