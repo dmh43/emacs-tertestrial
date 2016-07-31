@@ -1,4 +1,6 @@
 ;;; emacs-tertestrial.el --- Interface to tertestrial
+;; Author: dmh
+;; Version: 0.0.2
 
 (require 'compile)
 (require 'json)
@@ -91,3 +93,7 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 (defun tertestrial-set-mapping ()
   (interactive)
   (tertestrial-write-command (tertestrial-get-set-mapping-operation)))
+
+(provide 'emacs-tertestrial)
+
+;;; emacs-tertestrial.el ends here
