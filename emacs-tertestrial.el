@@ -51,7 +51,7 @@
         (compilation-minor-mode 1)
         (dir-locals-read-from-dir project-path)
         (setq tertestrial-project-err-regexp-alist
-              (cdr (assoc "node" tertestrial-lang-err-regexp-alist)))
+              (cdr (assoc lang tertestrial-lang-err-regexp-alist)))
         (set (make-local-variable 'compilation-error-regexp-alist)
              tertestrial-project-err-regexp-alist))
       (pop-to-buffer tertestrial-buff-name))))
