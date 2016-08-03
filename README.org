@@ -7,3 +7,8 @@
  - View the status of the test in the minibuffer [to be implemented]
  - Highlights failing tests in the source file [to be implemented]
  - Integration with Projectile [to be implemented]
+** Installation
+*** Clone this repo into ~/.emacs.d/vendor (or some other directory in your load-path)
+*** Include `(require 'tertestrial-mode)` in your init file
+** Update
+*** `git pull` in the repo directory
