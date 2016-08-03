@@ -9,6 +9,6 @@
  - Integration with Projectile [to be implemented]
 ** Installation
 - Clone this repo into ~/.emacs.d/vendor (or some other directory in your load-path)
-- Include src_emacs-lisp[:exports code]{(require 'tertestrial-mode)} =tertestrial-mode= in your init file
+- Include ~tertestrial-mode~ in your init file
 ** Update
 - ~git pull~ in the repo directory
