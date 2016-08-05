@@ -9,6 +9,14 @@
  - Integration with Projectile [to be implemented]
 ** Installation
 - Clone this repo into ~/.emacs.d/vendor (or some other directory in your load-path)
-- Include ~tertestrial-mode~ in your init file
+- Include ~(require 'tertestrial-mode)~ in your init file
+- You may also want to add the following to your init file:
+#+BEGIN_SRC emacs-lisp
+  (defun test-file-hook ()
+    (when (string-match-p "test" buffer-file-name)
+      (tertestrial-mode)))
+  (add-hook 'find-file-hook 'test-file-hook)
+#+END_SRC
+
 ** Update
 - ~git pull~ in the repo directory
