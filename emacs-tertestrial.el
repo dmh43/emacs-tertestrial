@@ -32,7 +32,10 @@
 (defun tertestrial-get-root-dir ()
   (if tertestrial-root-dir
       tertestrial-root-dir
-    (read-directory-name "Select project root directory")))
+    (let ((dir-name (read-directory-name "Select project root directory")))
+      (add-dir-local-variable nil 'tertestrial-root-dir dir-name)
+      (previous-buffer)
+      dir-name)))
 
 (defun tertestrial-start ()
   "Start the tertestrial server in a comint buffer."
@@ -44,12 +47,12 @@
     (kill-old-buffer tertestrial-buff-name)
     (with-current-buffer (get-buffer-create tertestrial-buff-name)
       (setq default-directory project-path)
+      (dir-locals-read-from-dir project-path)
       (message default-directory)
       (ansi-color-for-comint-mode-on)
       (make-comint-in-buffer "tertestrial" tertestrial-buff-name tertestrial-command)
       (when lang
         (compilation-minor-mode 1)
-        (dir-locals-read-from-dir project-path)
         (setq tertestrial-project-err-regexp-alist
               (cdr (assoc lang tertestrial-lang-err-regexp-alist)))
         (set (make-local-variable 'compilation-error-regexp-alist)

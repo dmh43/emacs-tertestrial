@@ -20,3 +20,11 @@
 
 ** Update
 - ~git pull~ in the repo directory
+** Usage
+While in tertestrial-mode:
+- ~C-c C-t C-s~ starts tertestrial
+- ~C-c C-t f~ runs the test for the currently visited file
+- ~C-c C-t l~ runs the test at point
+- ~C-c C-t s~ runs the test for the suite at point
+- ~C-c C-t C-t~ runs the last test which tertestrial ran
+- ~C-c C-t c~ allows you to change tertestrial action sets
