@@ -16,7 +16,7 @@
 
 (defun tertestrial-buttercup-get-test-suite-operation (&optional suite)
   (let ((suite-name (if suite suite (tertestrial-buttercup-get-test-name))))
-    (json-encode `(:operation "testSuite" :pattern ,suite-name))))
+    (json-encode `(:pattern ,suite-name))))
 
 (defun tertestrial-test-suite ()
   (interactive)

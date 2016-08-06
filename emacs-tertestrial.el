@@ -1,6 +1,14 @@
 ;;; emacs-tertestrial.el --- Interface to tertestrial
 ;; Author: dmh
-;; Version: 0.2
+;; Version: 0.3
+;; Changelog:
+;; | Version  | Contributor | Descrption                              |
+;; |----------+-------------+-----------------------------------------|
+;; | 0.3      | dmh43       | Tertestrial 0.0.5 encorporated breaking |
+;; |          |             | changes to the mapping format. Mappings |
+;; |          |             | are now referred to as "actionsets"     |
+;; |----------+-------------+-----------------------------------------|
+
 
 (require 'compile)
 (require 'json)
@@ -61,19 +69,19 @@
 
 (defun tertestrial-get-test-file-operation (&optional filename)
   (let ((buffer-name (if filename filename (buffer-file-name))))
-    (json-encode `(:operation "testFile" :filename ,buffer-name))))
+    (json-encode `(:filename ,buffer-name))))
 
 (defun tertestrial-get-test-line-operation (&optional filename line)
   (let ((buffer-name (if filename filename (buffer-file-name)))
         (line-num (if line line (line-number-at-pos))))
-    (json-encode `(:operation "testLine" :filename ,buffer-name :line ,line-num))))
+    (json-encode `(:filename ,buffer-name :line ,line-num))))
 
 (defun tertestrial-get-last-test-operation ()
   (json-encode '(:operation "repeatLastTest")))
 
-(defun tertestrial-get-set-mapping-operation (&optional mapping)
-  (let ((mapping-num (if mapping mapping (read-number "Please enter the number associated with the mapping to activate: "))))
-    (json-encode `(:operation "setMapping" :mapping ,mapping-num))))
+(defun tertestrial-get-set-actionset-operation (&optional actionset)
+  (let ((actionset-num (if actionset actionset (read-number "Please enter the number associated with the actionset to activate: "))))
+    (json-encode `(:actionSet ,actionset-num))))
 
 (defun tertestrial-write-command (tert-command-str)
   (let ((tmp-path (tertestrial-tmp-path)))
@@ -93,9 +101,9 @@
   (interactive)
   (tertestrial-write-command (tertestrial-get-last-test-operation)))
 
-(defun tertestrial-set-mapping ()
+(defun tertestrial-set-actionset ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-set-mapping-operation)))
+  (tertestrial-write-command (tertestrial-get-set-actionset-operation)))
 
 
 (provide 'emacs-tertestrial)

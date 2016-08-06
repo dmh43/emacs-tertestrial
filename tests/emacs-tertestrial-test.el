@@ -4,13 +4,13 @@
   (it "returns the string for the test file operation"
     (expect (tertestrial-get-test-file-operation "file.txt")
             :to-equal
-            "{\"operation\":\"testFile\",\"filename\":\"file.txt\"}")))
+            "{\"filename\":\"file.txt\"}")))
 
 (describe "tertestrial-get-test-line-operation"
   (it "returns the string for the test line operation"
     (expect (tertestrial-get-test-line-operation "file.txt" 10)
             :to-equal
-            "{\"operation\":\"testLine\",\"filename\":\"file.txt\",\"line\":10}")))
+            "{\"filename\":\"file.txt\",\"line\":10}")))
 
 (describe "tertestrial-get-last-test-operation"
   (it "returns the string for the run last test operation"
@@ -18,8 +18,8 @@
             :to-equal
             "{\"operation\":\"repeatLastTest\"}")))
 
-(describe "tertestrial-get-set-mapping-operation"
-  (it "returns the string for the set mapping operation"
-    (expect (tertestrial-get-set-mapping-operation 2)
+(describe "tertestrial-get-set-actionset-operation"
+  (it "returns the string for the set actionset operation"
+    (expect (tertestrial-get-set-actionset-operation 2)
             :to-equal
-            "{\"operation\":\"setMapping\",\"mapping\":2}")))
+            "{\"actionSet\":2}")))
