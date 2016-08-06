@@ -1,7 +1,3 @@
-(add-to-list 'load-path
-             (file-name-directory
-              (locate-dominating-file load-file-name "emacs-tertestrial-buttercup.el")))
-
 (require 'emacs-tertestrial-buttercup)
 
 (describe "tertestrial-buttercup-get-test-suite-operation"

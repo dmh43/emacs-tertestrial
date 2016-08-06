@@ -1,6 +1,3 @@
-(add-to-list 'load-path
-             (file-name-directory (locate-dominating-file load-file-name "emacs-tertestrial.el")))
-
 (require 'emacs-tertestrial)
 
 (describe "tertestrial-get-test-file-operation"
