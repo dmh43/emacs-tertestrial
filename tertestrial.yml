@@ -1,3 +1,7 @@
 actions:
-  - testSuite: "cask exec buttercup -p {{pattern}}"
-    testDir: "cask exec buttercup -L {{dirpath}}"
+  - match:
+      pattern: '.*'
+    command: "cask exec buttercup -p {{pattern}}"
+  - match:
+      dirpath: '^(.+)/$'
+    command: "cask exec buttercup -L {{dirpath}}"
