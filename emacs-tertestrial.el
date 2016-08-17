@@ -27,11 +27,6 @@
       (concat "*tertestrial-" project-name "*")
     (concat "*tertestrial*")))
 
-(defun kill-old-buffer (buffer-name)
-  "If buffer exists, kill it."
-  (when (get-buffer buffer-name)
-    (kill-buffer buffer-name)))
-
 (defun tertestrial-tmp-path (&optional dir-path)
   "Path to .tertestrial.tmp."
   (let ((path (if dir-path dir-path tertestrial-root-dir)))
@@ -52,7 +47,6 @@
          (project-path (tertestrial-get-root-dir))
          (project-name (file-name-base (directory-file-name project-path)))
          (tertestrial-buff-name (tertestrial-get-buffer-name project-name)))
-    (kill-old-buffer tertestrial-buff-name)
     (with-current-buffer (get-buffer-create tertestrial-buff-name)
       (setq default-directory project-path)
       (dir-locals-read-from-dir project-path)
