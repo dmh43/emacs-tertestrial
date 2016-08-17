@@ -8,6 +8,7 @@
             (define-key map (kbd "C-c C-t f") 'tertestrial-test-file)
             (define-key map (kbd "C-c C-t l") 'tertestrial-test-line)
             (define-key map (kbd "C-c C-t s") 'tertestrial-test-suite)
+            (define-key map (kbd "C-c C-t d") 'tertestrial-test-dir)
             (define-key map (kbd "C-c C-t C-t") 'tertestrial-last-test)
             (define-key map (kbd "C-c C-t c") 'tertestrial-set-actionset)
             map))
