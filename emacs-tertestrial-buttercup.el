@@ -16,11 +16,11 @@
 
 (defun tertestrial-buttercup-get-test-suite-operation (&optional suite)
   (let ((suite-name (if suite suite (tertestrial-buttercup-get-test-name))))
-    (json-encode `(:pattern ,suite-name))))
+    (json-encode `(:name "pattern" :pattern ,suite-name))))
 
 (defun tertestrial-buttercup-get-test-dir-operation (&optional dir)
   (let ((dir-path (if dir dir (file-name-directory (buffer-file-name)))))
-    (json-encode `(:dirpath ,dir-path))))
+    (json-encode `(:name "directory" :dirpath ,dir-path))))
 
 (defun tertestrial-test-suite ()
   (interactive)

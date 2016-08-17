@@ -1,7 +1,9 @@
 actions:
   - match:
+      name: 'pattern'
       pattern: '.*'
     command: "cask exec buttercup -p {{pattern}}"
   - match:
+      name: 'directory'
       dirpath: '^(.+)/$'
     command: "cask exec buttercup -L {{dirpath}}"
