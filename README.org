@@ -28,6 +28,7 @@
 - ~C-c C-t s~ runs the test for the suite at point
 - ~C-c C-t C-t~ runs the last test which tertestrial ran
 - ~C-c C-t c~ allows you to change tertestrial action sets
+- ~C-c C-t a~ toggles the ~autotest~ hook which runs the last command whenever a buffer is saved
 *** Project Configuration
 ~tertestrial-mode~ uses dir local variables to configure project settings.
 - ~tertestrial-root-dir~ sets the project root path
