@@ -20,7 +20,7 @@
   (it "returns the string for the run last test operation"
     (expect (tertestrial-get-last-test-operation)
             :to-equal
-            "{\"operation\":\"repeatLastTest\"}")))
+            "{\"repeatLastTest\":true}")))
 
 (describe "tertestrial-get-set-actionset-operation"
   (it "returns the string for the set actionset operation"

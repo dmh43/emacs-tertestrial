@@ -71,7 +71,7 @@
     (json-encode `(:filename ,buffer-name :line ,line-num))))
 
 (defun tertestrial-get-last-test-operation ()
-  (json-encode '(:operation "repeatLastTest")))
+  (json-encode '(:repeatLastTest t)))
 
 (defun tertestrial-get-set-actionset-operation (&optional actionset)
   (let ((actionset-num (if actionset actionset (read-number "Please enter the number associated with the actionset to activate: "))))
