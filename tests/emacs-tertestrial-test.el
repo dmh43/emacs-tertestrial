@@ -28,6 +28,12 @@
             :to-equal
             "{\"actionSet\":2}")))
 
+(describe "tertestrial-get-cycle-actionset-operation"
+          (it "returns the string for the cycle-actionset operation"
+              (expect (tertestrial-get-cycle-actionset-operation)
+                      :to-equal
+                      "{\"cycleActionSet\":\"next\"}")))
+
 (describe "tertestrial-buttercup-get-test-suite-operation"
           (it "returns the command to run the test suite operation"
               (expect (tertestrial-buttercup-get-test-suite-operation "a test suite name")

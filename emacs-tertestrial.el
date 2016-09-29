@@ -2,19 +2,21 @@
 ;; Author: dmh
 ;; Version: 0.3
 ;; Changelog:
-;; | Version  | Contributor | Descrption                              |
-;; |----------+-------------+-----------------------------------------|
-;; | 0.3      | dmh43       | Tertestrial 0.0.5 encorporated breaking |
-;; |          |             | changes to the mapping format. Mappings |
-;; |          |             | are now referred to as "actionsets"     |
-;; |----------+-------------+-----------------------------------------|
+;; | Version | Contributor | Descrption                              |
+;; |---------+-------------+-----------------------------------------|
+;; |     0.3 | dmh43       | Tertestrial 0.0.5 encorporated breaking |
+;; |         |             | changes to the mapping format. Mappings |
+;; |         |             | are now referred to as "actionsets"     |
+;; |---------+-------------+-----------------------------------------|
+;; |     0.5 | dmh43       | Tertestrial 0.3.1 supports cycling      |
+;; |         |             | action sets                             |
+;; |---------+-------------+-----------------------------------------|
 
 
 (require 'compile)
 (require 'json)
 (require 'json)
 (require 'thingatpt)
-(require 'lang-err-regexps)
 
 (defgroup tertestrial nil
   "Emacs interface to Tertestrial"
@@ -86,6 +88,9 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
   (let ((actionset-num (if actionset actionset (read-number "Please enter the number associated with the actionset to activate: "))))
     (json-encode `(:actionSet ,actionset-num))))
 
+(defun tertestrial-get-cycle-actionset-operation ()
+  (json-encode `(:cycleActionSet next)))
+
 (defun tertestrial-write-command (tert-command-str)
   (let ((tmp-path (tertestrial-tmp-path)))
     (with-temp-buffer
@@ -107,6 +112,10 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 (defun tertestrial-set-actionset ()
   (interactive)
   (tertestrial-write-command (tertestrial-get-set-actionset-operation)))
+
+(defun tertestrial-cycle-actionset ()
+  (interactive)
+  (tertestrial-write-command (tertestrial-get-cycle-actionset-operation)))
 
 (defun tertestrial-buttercup-get-test-name ()
   (interactive)
