@@ -12,6 +12,8 @@
 
 (require 'compile)
 (require 'json)
+(require 'json)
+(require 'thingatpt)
 (require 'lang-err-regexps)
 
 (defgroup tertestrial nil
@@ -20,6 +22,12 @@
 
 (defvar tertestrial-project-err-regexp-alist)
 (defvar tertestrial-command "tertestrial")
+(defvar node-err-regexp
+  "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
+  "Regular expression to match NodeJS errors.
+From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/")
+(defvar tertestrial-lang-err-regexp-alist
+  `(("node" . ((,node-err-regexp 1 2 3)))))
 
 
 (defun tertestrial-get-buffer-name (&optional project-name)
@@ -49,7 +57,8 @@
          (tertestrial-buff-name (tertestrial-get-buffer-name project-name)))
     (with-current-buffer (get-buffer-create tertestrial-buff-name)
       (setq default-directory project-path)
-      (dir-locals-read-from-dir project-path)
+      ;;(dir-locals-read-from-dir project-path)
+      (hack-dir-local-variables-non-file-buffer)
       (message default-directory)
       (ansi-color-for-comint-mode-on)
       (make-comint-in-buffer "tertestrial" tertestrial-buff-name tertestrial-command)
@@ -98,6 +107,58 @@
 (defun tertestrial-set-actionset ()
   (interactive)
   (tertestrial-write-command (tertestrial-get-set-actionset-operation)))
+
+(defun tertestrial-buttercup-get-test-name ()
+  (interactive)
+  (save-excursion
+    (end-of-defun)
+    (beginning-of-defun)
+    (sp-down-sexp)
+    (sp-forward-sexp)
+    (sp-forward-sexp)
+    (sp-backward-sexp)
+    (let ((thing (thing-at-point 'sexp t)))
+      (substring thing 1 -1))))
+
+(defun tertestrial-buttercup-get-test-suite-operation (&optional suite)
+  (let ((suite-name (if suite suite (tertestrial-buttercup-get-test-name))))
+    (json-encode `(:name "pattern" :pattern ,suite-name))))
+
+(defun tertestrial-buttercup-get-test-dir-operation (&optional dir)
+  (let ((dir-path (if dir dir (file-name-directory (buffer-file-name)))))
+    (json-encode `(:name "directory" :dirpath ,dir-path))))
+
+(defun tertestrial-test-suite ()
+  (interactive)
+  (tertestrial-write-command (tertestrial-buttercup-get-test-suite-operation)))
+
+(defun tertestrial-test-dir ()
+  (interactive)
+  (tertestrial-write-command (tertestrial-buttercup-get-test-dir-operation)))
+
+(defun tertestrial-toggle-autotest-hook ()
+  (interactive)
+  (if (advice-member-p 'tertestrial-last-test 'save-buffer)
+      (advice-remove 'save-buffer 'tertestrial-last-test)
+    (advice-add 'save-buffer :after 'tertestrial-last-test)))
+
+(advice-add 'tertestrial-write-command :before
+            (lambda ()
+              (when (not (advice-member-p 'tertestrial-last-test 'save-buffer))
+                  'save-buffer)))
+
+(define-minor-mode tertestrial-mode
+  "Start tertestrial for the current project and enable keybindings."
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-c C-t C-s") 'tertestrial-start)
+            (define-key map (kbd "C-c C-t f") 'tertestrial-test-file)
+            (define-key map (kbd "C-c C-t l") 'tertestrial-test-line)
+            (define-key map (kbd "C-c C-t s") 'tertestrial-test-suite)
+            (define-key map (kbd "C-c C-t d") 'tertestrial-test-dir)
+            (define-key map (kbd "C-c C-t C-t") 'tertestrial-last-test)
+            (define-key map (kbd "C-c C-t c") 'tertestrial-set-actionset)
+            (define-key map (kbd "C-c C-t a") 'tertestrial-toggle-autotest-hook)
+            map))
 
 
 (provide 'emacs-tertestrial)
