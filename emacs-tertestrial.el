@@ -31,40 +31,40 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 (defvar tertestrial-lang-err-regexp-alist
   `(("node" . ((,node-err-regexp 1 2 3)))))
 
+(defun tertestrial-get-project-name ()
+  (file-name-base (directory-file-name (tertestrial-get-root-dir))))
 
 (defun tertestrial-get-buffer-name (&optional project-name)
   (if project-name
       (concat "*tertestrial-" project-name "*")
-    (concat "*tertestrial*")))
-
-(defun tertestrial-tmp-path (&optional dir-path)
-  "Path to .tertestrial.tmp."
-  (let ((path (if dir-path dir-path tertestrial-root-dir)))
-    (concat path ".tertestrial.tmp")))
+    (concat "*tertestrial-" (tertestrial-get-project-name) "*")))
 
 (defun tertestrial-get-root-dir ()
-  (if tertestrial-root-dir
+  (if (boundp 'tertestrial-root-dir)
       tertestrial-root-dir
     (let ((dir-name (read-directory-name "Select project root directory")))
       (add-dir-local-variable nil 'tertestrial-root-dir dir-name)
       (previous-buffer)
       dir-name)))
 
+(defun tertestrial-tmp-path (&optional dir-path)
+  "Path to .tertestrial.tmp."
+  (concat (if dir-path dir-path tertestrial-root-dir) ".tertestrial.tmp"))
+
 (defun tertestrial-start ()
   "Start the tertestrial server in a comint buffer."
   (interactive)
   (let* ((lang (when (boundp 'tertestrial-project-lang) tertestrial-project-lang))
          (project-path (tertestrial-get-root-dir))
-         (project-name (file-name-base (directory-file-name project-path)))
-         (tertestrial-buff-name (tertestrial-get-buffer-name project-name)))
+         (tertestrial-buff-name (tertestrial-get-buffer-name)))
     (with-current-buffer (get-buffer-create tertestrial-buff-name)
       (setq default-directory project-path)
-      ;;(dir-locals-read-from-dir project-path)
       (hack-dir-local-variables-non-file-buffer)
       (message default-directory)
       (ansi-color-for-comint-mode-on)
       (make-comint-in-buffer "tertestrial" tertestrial-buff-name tertestrial-command)
       (when lang
+        (message lang)
         (compilation-minor-mode 1)
         (setq tertestrial-project-err-regexp-alist
               (cdr (assoc lang tertestrial-lang-err-regexp-alist)))
@@ -85,7 +85,10 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
   (json-encode '(:repeatLastTest t)))
 
 (defun tertestrial-get-set-actionset-operation (&optional actionset)
-  (let ((actionset-num (if actionset actionset (read-number "Please enter the number associated with the actionset to activate: "))))
+  (let ((actionset-num
+         (if actionset
+             actionset
+           (read-number "Please enter the number associated with the actionset to activate: "))))
     (json-encode `(:actionSet ,actionset-num))))
 
 (defun tertestrial-get-cycle-actionset-operation ()
@@ -97,25 +100,31 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
       (insert tert-command-str)
       (write-file tmp-path))))
 
+(defun tertestrial-clear-term-write-command (tert-command-str)
+  (let ((comint-buf-name (tertestrial-get-buffer-name)))
+    (with-current-buffer (get-buffer-create comint-buf-name)
+      (comint-clear-buffer))
+    (tertestrial-write-command tert-command-str)))
+
 (defun tertestrial-test-file ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-test-file-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-get-test-file-operation)))
 
 (defun tertestrial-test-line ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-test-line-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-get-test-line-operation)))
 
 (defun tertestrial-last-test ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-last-test-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-get-last-test-operation)))
 
 (defun tertestrial-set-actionset ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-set-actionset-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-get-set-actionset-operation)))
 
 (defun tertestrial-cycle-actionset ()
   (interactive)
-  (tertestrial-write-command (tertestrial-get-cycle-actionset-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-get-cycle-actionset-operation)))
 
 (defun tertestrial-buttercup-get-test-name ()
   (interactive)
@@ -139,11 +148,11 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun tertestrial-test-suite ()
   (interactive)
-  (tertestrial-write-command (tertestrial-buttercup-get-test-suite-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-buttercup-get-test-suite-operation)))
 
 (defun tertestrial-test-dir ()
   (interactive)
-  (tertestrial-write-command (tertestrial-buttercup-get-test-dir-operation)))
+  (tertestrial-clear-term-write-command (tertestrial-buttercup-get-test-dir-operation)))
 
 (defun tertestrial-toggle-autotest-hook ()
   (interactive)
@@ -154,7 +163,7 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 (advice-add 'tertestrial-write-command :before
             (lambda ()
               (when (not (advice-member-p 'tertestrial-last-test 'save-buffer))
-                  'save-buffer)))
+                'save-buffer)))
 
 (define-minor-mode tertestrial-mode
   "Start tertestrial for the current project and enable keybindings."
