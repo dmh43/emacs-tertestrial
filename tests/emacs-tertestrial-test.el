@@ -24,9 +24,9 @@
 
 (describe "tertestrial-get-set-actionset-operation"
   (it "returns the string for the set actionset operation"
-    (expect (tertestrial-get-set-actionset-operation 2)
+    (expect (tertestrial-get-set-actionset-operation "headless")
             :to-equal
-            "{\"actionSet\":2}")))
+            "{\"actionSet\":\"headless\"}")))
 
 (describe "tertestrial-get-cycle-actionset-operation"
           (it "returns the string for the cycle-actionset operation"
