@@ -1,6 +1,6 @@
 ;;; emacs-tertestrial.el --- Interface to tertestrial
 ;; Author: dmh
-;; Version: 0.3
+;; Version: 0.6
 ;; Changelog:
 ;; | Version | Contributor | Descrption                              |
 ;; |---------+-------------+-----------------------------------------|
@@ -11,10 +11,12 @@
 ;; |     0.5 | dmh43       | Tertestrial 0.3.1 supports cycling      |
 ;; |         |             | action sets                             |
 ;; |---------+-------------+-----------------------------------------|
+;; |     0.6 | dmh43       | emacs-tertestrial no longer needs dir   |
+;; |         |             | locals                                  |
+;; |---------+-------------+-----------------------------------------|
 
 
 (require 'compile)
-(require 'json)
 (require 'json)
 (require 'thingatpt)
 
@@ -28,8 +30,10 @@
   "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
   "Regular expression to match NodeJS errors.
 From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/")
+
 (defvar tertestrial-lang-err-regexp-alist
-  `(("node" . ((,node-err-regexp 1 2 3)))))
+  `(("js" . ((,node-err-regexp 1 2 3)))
+    ("coffee" . ((,node-err-regexp 1 2 3)))))
 
 (defun tertestrial-get-project-name ()
   (file-name-base (directory-file-name (tertestrial-get-root-dir))))
@@ -39,38 +43,34 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
       (concat "*tertestrial-" project-name "*")
     (concat "*tertestrial-" (tertestrial-get-project-name) "*")))
 
-(defun tertestrial-get-root-dir ()
-  (if (boundp 'tertestrial-root-dir)
-      tertestrial-root-dir
-    (let ((dir-name (read-directory-name "Select project root directory")))
-      (add-dir-local-variable nil 'tertestrial-root-dir dir-name)
-      (previous-buffer)
-      dir-name)))
+(defun tertestrial-get-root-dir () (locate-dominating-file default-directory "tertestrial.yml"))
 
 (defun tertestrial-tmp-path (&optional dir-path)
   "Path to .tertestrial.tmp."
-  (concat (if dir-path dir-path tertestrial-root-dir) ".tertestrial.tmp"))
+  (concat (if dir-path dir-path (tertestrial-get-root-dir)) ".tertestrial.tmp"))
+
+(defun tertestrial-get-lang-err-regexp-alist ()
+  (interactive)
+  (let ((file-extension (file-name-extension buffer-file-name)))
+    (cdr (assoc file-extension tertestrial-lang-err-regexp-alist))))
 
 (defun tertestrial-start ()
   "Start the tertestrial server in a comint buffer."
   (interactive)
   (let* ((lang (when (boundp 'tertestrial-project-lang) tertestrial-project-lang))
          (project-path (tertestrial-get-root-dir))
-         (tertestrial-buff-name (tertestrial-get-buffer-name)))
-    (with-current-buffer (get-buffer-create tertestrial-buff-name)
+         (project-err-regexp (tertestrial-get-lang-err-regexp-alist))
+         (comint-buff-name (tertestrial-get-buffer-name)))
+    (with-current-buffer (get-buffer-create comint-buff-name)
       (setq default-directory project-path)
-      (hack-dir-local-variables-non-file-buffer)
-      (message default-directory)
+      (message project-path)
       (ansi-color-for-comint-mode-on)
-      (make-comint-in-buffer "tertestrial" tertestrial-buff-name tertestrial-command)
-      (when lang
-        (message lang)
+      (make-comint-in-buffer "tertestrial" comint-buff-name tertestrial-command)
+      (when project-err-regexp
         (compilation-minor-mode 1)
-        (setq tertestrial-project-err-regexp-alist
-              (cdr (assoc lang tertestrial-lang-err-regexp-alist)))
         (set (make-local-variable 'compilation-error-regexp-alist)
-             tertestrial-project-err-regexp-alist))
-      (pop-to-buffer tertestrial-buff-name))))
+             project-err-regexp))
+      (pop-to-buffer comint-buff-name))))
 
 (defun tertestrial-get-test-file-operation (&optional filename)
   (let ((buffer-name (if filename filename (buffer-file-name))))
@@ -157,13 +157,16 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 (defun tertestrial-toggle-autotest-hook ()
   (interactive)
   (if (advice-member-p 'tertestrial-last-test 'save-buffer)
-      (advice-remove 'save-buffer 'tertestrial-last-test)
-    (advice-add 'save-buffer :after 'tertestrial-last-test)))
+      (progn
+        (advice-remove 'save-buffer 'tertestrial-last-test)
+        (message "Tertestrial autotest mode disabled"))
+    (progn
+      (advice-add 'save-buffer :after 'tertestrial-last-test)
+      (message "Tertestrial autotest mode enabled"))))
 
 (advice-add 'tertestrial-write-command :before
-            (lambda ()
-              (when (not (advice-member-p 'tertestrial-last-test 'save-buffer))
-                'save-buffer)))
+            (lambda (&rest args)
+              (save-buffer)))
 
 (define-minor-mode tertestrial-mode
   "Start tertestrial for the current project and enable keybindings."
