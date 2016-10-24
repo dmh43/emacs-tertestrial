@@ -245,6 +245,9 @@ https://github.com/abo-abo/swiper")))
             (define-key map (kbd "C-c C-t a") 'tertestrial-toggle-autotest-hook)
             map))
 
+(setq ansi-color-drop-regexp
+  "\033\\[\\([ABCDsuK]\\|[012][GJK]\\|=[0-9]+[hI]\\|[0-9;]*[Hf]\\|\\?[0-9]+[hl]\\)")
+
 
 (provide 'emacs-tertestrial)
 
