@@ -1,8 +1,8 @@
 ;;; emacs-tertestrial.el --- Interface to tertestrial
 ;; Author: dmh
-;; Version: 0.7
+;; Version: 0.8
 ;; Changelog:
-;; | Version | Contributor | Descrption                              |
+;; | Version | Contributor | Description                             |
 ;; |---------+-------------+-----------------------------------------|
 ;; |     0.3 | dmh43       | Tertestrial 0.0.5 encorporated breaking |
 ;; |         |             | changes to the mapping format. Mappings |
@@ -16,6 +16,9 @@
 ;; |---------+-------------+-----------------------------------------|
 ;; |     0.7 | dmh43       | set-actionset now supports completion   |
 ;; |         |             | with common emacs autocompletion mode   |
+;; |---------+-------------+-----------------------------------------|
+;; |     0.8 | dmh43       | tertstrial mode is global. Only save    |
+;; |         |             | buffer if visiting file                 |
 ;; |---------+-------------+-----------------------------------------|
 
 
@@ -142,9 +145,9 @@ https://github.com/abo-abo/swiper")))
   (interactive)
   (let (actionset-list (tertestrial-get-actionset-list))
     (when actionset-list
-        (tertestrial-completing-read
-         "Please select an actionset"
-         actionset-list))))
+      (tertestrial-completing-read
+       "Please select an actionset"
+       actionset-list))))
 
 (defun tertestrial-get-set-actionset-operation (&optional actionset)
   (let ((actionset (or actionset (tertestrial-select-actionset))))
@@ -230,7 +233,8 @@ https://github.com/abo-abo/swiper")))
 
 (advice-add 'tertestrial-write-command :before
             (lambda (&rest args)
-              (save-buffer)))
+              (when (buffer-file-name)
+                (save-buffer))))
 
 (define-minor-mode tertestrial-mode
   "Start tertestrial for the current project and enable keybindings."
@@ -243,10 +247,11 @@ https://github.com/abo-abo/swiper")))
             (define-key map (kbd "C-c C-t C-t") 'tertestrial-last-test)
             (define-key map (kbd "C-c C-t c") 'tertestrial-set-actionset)
             (define-key map (kbd "C-c C-t a") 'tertestrial-toggle-autotest-hook)
-            map))
+            map)
+  :global t)
 
 (setq ansi-color-drop-regexp
-  "\033\\[\\([ABCDsuK]\\|[012][GJK]\\|=[0-9]+[hI]\\|[0-9;]*[Hf]\\|\\?[0-9]+[hl]\\)")
+      "\033\\[\\([ABCDsuK]\\|[012][GJK]\\|=[0-9]+[hI]\\|[0-9;]*[Hf]\\|\\?[0-9]+[hl]\\)")
 
 
 (provide 'emacs-tertestrial)
