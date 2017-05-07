@@ -31,6 +31,7 @@
   "Emacs interface to Tertestrial"
   :group 'tools)
 
+(defvar tertestrial-auto-test-mode nil)
 (defvar tertestrial-project-err-regexp-alist)
 (defvar tertestrial-command "tertestrial")
 (defvar node-err-regexp
@@ -223,18 +224,19 @@ https://github.com/abo-abo/swiper")))
 
 (defun tertestrial-toggle-autotest-hook ()
   (interactive)
-  (if (advice-member-p 'tertestrial-last-test 'save-buffer)
+  (if tertestrial-auto-test-mode
       (progn
-        (advice-remove 'save-buffer 'tertestrial-last-test)
+        (setf tertestrial-auto-test-mode nil)
         (message "Tertestrial autotest mode disabled"))
     (progn
-      (advice-add 'save-buffer :after 'tertestrial-last-test)
+      (setf tertestrial-auto-test-mode t)
       (message "Tertestrial autotest mode enabled"))))
 
 (advice-add 'tertestrial-write-command :before
             (lambda (&rest args)
               (when (buffer-file-name)
-                (save-buffer))))
+                (save-buffer)
+                (tertestrial-last-test))))
 
 (define-minor-mode tertestrial-mode
   "Start tertestrial for the current project and enable keybindings."
