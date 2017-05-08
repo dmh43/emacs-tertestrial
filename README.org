@@ -33,9 +33,4 @@
 ~tertestrial-mode~ uses dir local variables to configure project settings.
 - ~tertestrial-root-dir~ sets the project root path
 - ~tertestrial-project-lang~ sets the directory language for tertestrial output parsing (for jump-to-file functionality)
-**** Example
-~.dir-locals.el~
-#+BEGIN_SRC emacs-lisp
- ((nil . ((tertestrial-project-lang . "node")
-         (tertestrial-root-dir . "/Users/dany/my-project/"))))
-#+END_SRC
+
